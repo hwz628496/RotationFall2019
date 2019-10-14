@@ -21,7 +21,19 @@ After <passage> should follow a number indicating which paragraph, with [0] bein
 
 To do: search through each index, look for disease terms and draw up a list for 
 each PMID, one of handmade annotations, one from PubTator
+
+NB: urlxml can strip encoding header junk by starting from 77: urlxml[x][77:]
 """
 
 import xmltodict
-foo=xmltodict.parse(urlxml[0])
+
+items=len(urlxml)
+parsedxml=[None]*items
+for i in range(items):
+    parsedxml[i]=xmltodict.parse(urlxml[i])
+
+from lxml import etree as ET
+items=len(urlxml)
+parsedxml=[None]*items
+for i in range(items):
+    parsedxml[i]=ET.fromstring(urlxml[i])
