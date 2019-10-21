@@ -19,8 +19,8 @@ f.close()
 
 #pull PMCID's from PMID's
 from Bio import Medline 
-pmcidh=[""]
-pmidh2=[""]
+pmcidh=[]
+pmidh2=[]
 handle=open("PMChand_medline.txt")
 records = Medline.parse(handle)
 for rec2 in records:
@@ -32,12 +32,9 @@ for rec2 in records:
         continue
 handle.close()
 
-del pmcidh[0]
-del pmidh2[0]
-
 #Query PubTator
 import requests
-pmcid_fail=[""]
+pmcid_fail=[]
 
 urlxml=[""]*52
 for i in range(52):
@@ -51,3 +48,4 @@ for i in range(52):
         pmcid_fail.append(pmcidh[i])
         continue
     
+pmcid2pmid = dict(zip(pmcidh, pmidh2))

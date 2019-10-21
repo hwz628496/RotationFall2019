@@ -41,13 +41,13 @@ def buildlist():
     
     global pmcid2pmid
     pmcid2pmid = dict(zip(pmcidh, pmidh2))
-    return pmcid_fail,urlxml,pmcid2pmid
+    return pmcid_fail,urlxml,pmcid2pmid,pmidh2
 
-pmcid_fail,urlxml,pmcid2pmid=buildlist()
+pmcid_fail,urlxml,pmcid2pmid,pmid_list=buildlist()
 
 #chop off non-annotated chunks from pubtator docs
 import re
-urlxml_original=urlxml;
+urlxml_original=urlxml.copy();
 abstract=re.compile('<passage>.+?<infon key="section_type">.+?<\/infon><infon key="type">abstract<\/infon><offset>[0-9]+<\/offset><text>.+?<\/passage>')
 for i, xmldoc in enumerate(urlxml):
     urlxml[i]=re.sub(abstract,'',xmldoc);
@@ -77,7 +77,7 @@ def find_lists(xmldoc):
     pmcidre=re.compile('<id>[0-9]+<\/id>')
     pmcidraw=re.findall(pmcidre,xmldoc)
     disease_regex=re.compile('<infon key="type">Disease<\/infon><location length="[0-9]+" offset="[0-9]+"\/><text>')
-    disease_regex=re.compile('<infon key="type">Disease<\/infon><location length="[0-9]+" offset="[0-9]+"\/><text>')
+    #disease_regex=re.compile('<infon key="type">Disease<\/infon><location length="[0-9]+" offset="[0-9]+"\/><text>')
     pubtator_list=[]
     for disease in disease_regex.finditer(xmldoc):
         counter=0
@@ -101,10 +101,13 @@ def find_lists(xmldoc):
             handfile.append(line)
     fo.close()
     handlist=[]
+    handlistloc=[]
     for i in handfile:
         holder=i.split('\t')
         handlist.append(holder[len(holder)-1])
-    return pubtator_list,handlist
+        holder2=holder[1].split()
+        handlistloc.append([holder2[1],holder2[2]])
+    return pubtator_list,handlist,handlistloc
 
 #pubtator_list,handlist=find_lists(urlxml[0])
 
@@ -129,8 +132,15 @@ def clean(diseaselist):
     return cleanlist
 
 fone_list=[None]*52
+pubtator_group=[None]*52
+hand_master=[None]*52
 for i in range(52):
-    pubtator_list,handlist=find_lists(urlxml[i])
+    pubtator_list,handlist,handlistloc=find_lists(urlxml[i])
     pubtator_list=clean(pubtator_list)
     handlist=clean(handlist)
+    pubtator_group[i]=pubtator_list
+    #hand_group[i]=handlist
     fone_list[i]=fone(pubtator_list,handlist)
+    for j in range(len(handlistloc)):
+        handlistloc[j].append(handlist[j])
+    hand_master[i]=handlistloc
