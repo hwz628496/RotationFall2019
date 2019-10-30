@@ -285,24 +285,52 @@ def fonetwo(publist,handlist):
     fp=0
     success=0
     
+    success_list=[]
+    successfirst=[]
+    fp_list=[]
     for i in range(len(pubprobe)):
         if pubprobe[i] in handfirst:
             success=success+1
+            success_list.append(publist[i])
+            successfirst.append(publist[i][0])
         elif pubprobe[i] not in handfirst:
             fp=fp+1
+            fp_list.append(publist[i])
         else:
             print("Comparison error at ",i)
             break
+    
+    miss=0
+    miss_list=[]
+    for i in range(len(handfirst)):
+        if handfirst[i] in successfirst:
+            continue
+        elif handfirst[i] not in successfirst:
+            miss=miss+1
+            miss_list.append(handlist[i])
+        else:
+            print("Comparison error at ",i)
+            break
+      
     allpositive=len(handfirst)
     selected=len(pubprobe)
+    
+    if success+fp!=selected:
+        raise Exception('False positive error')
+    if success+miss!=allpositive:
+        raise Exception('Miss error')
+        
     try:
         precision=success/selected
         recall=success/allpositive
         score=(2*precision*recall)/(precision+recall)
     except:
         score=0
-    return score
+    return score,success_list,fp_list,miss_list
 
 fonemaster=[None]*52
+successmaster=[None]*52
+fpmaster=[None]*52
+missmaster=[None]*52
 for i in range(52):
-    fonemaster[i]=fonetwo(pubmaster2[i],handmaster2[i])
+    fonemaster[i],successmaster[i],fpmaster[i],missmaster[i]=fonetwo(pubmaster2[i],handmaster2[i])
